@@ -79,9 +79,10 @@ def convert_contig_mag_map_to_df(contig_mag_map: str) -> pd.DataFrame:
     :return: contig mag map as a dataframe
     """
 
-    df = pd.read_csv(contig_mag_map, sep='\t')
-    df = df.rename(columns={'UniteM Bin ID': 'BIN_ID', 'Contig ID': 'CONTIG_ID'})
-    df["CONTIG_ID"] = "GAPP-" + df["CONTIG_ID"]
+    df = pd.read_csv(contig_mag_map, sep='\t', header=None)
+    #df = df.rename(columns={'UniteM Bin ID': 'BIN_ID', 'Contig ID': 'CONTIG_ID'})
+    #df["CONTIG_ID"] = "GAPP-" + df["CONTIG_ID"]
+    df.columns = ['CONTIG_ID', 'BIN_ID']
     return df[['BIN_ID', 'CONTIG_ID']]
 
 
