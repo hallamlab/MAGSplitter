@@ -10,7 +10,6 @@ def convert_rxn_row_list_format(rxn_row: str) -> List[str]:
     :param rxn_row: reaction entry from rxn tools output
     :return: list of two strings: one of the type of information, and the information itself
     """
-
     end_idx = 1 # We add to end index until it represents the first tab in a line.
     while not rxn_row[end_idx] == '\t':
         end_idx += 1
@@ -71,17 +70,29 @@ def convert_orf_contig_map_to_df(orf_map: str) -> pd.DataFrame:
     return df[["ORF_ID", "CONTIG_ID"]]  # Return only the two columns we need
 
 
+def convert_contig_contig_map_to_df(contig_map: str):
+    """
+    Read the contig to contig mapping file produced during the preprocessing
+    step of metapathways. This will allow for MP internal IDs to be mapped
+    back to the original contig IDs.
+    :param contig_map: Contig mapping file
+    :return: Contig mapping dataframe
+    """
+
+    df = pd.read_csv(contig_map, sep='\t', header=None)
+    df.columns = ["CONTIG_ID", "CONTIG_ORIG_ID", "CONT_LEN"]
+    return df[["CONTIG_ID", "CONTIG_ORIG_ID"]]
+
 def convert_contig_mag_map_to_df(contig_mag_map: str) -> pd.DataFrame:
     """
-    Read the contig mag map, and extract the UniteM Bin ID and Contig ID as a dataframe
-    Prepend the metapathways syntax for the contig ID sample names (prepend "GAPP-" to the contig ID)
+    Read the contig mag map, and extract the CONTIG_ID and BIN_ID as a dataframe
+    Input should be a TSV with no header where the CONTIG_ID is column 1 and BIN_ID
+    is column 2.
     :param contig_mag_map: contig mag map
     :return: contig mag map as a dataframe
     """
 
     df = pd.read_csv(contig_mag_map, sep='\t', header=None)
-    #df = df.rename(columns={'UniteM Bin ID': 'BIN_ID', 'Contig ID': 'CONTIG_ID'})
-    #df["CONTIG_ID"] = "GAPP-" + df["CONTIG_ID"]
     df.columns = ['CONTIG_ID', 'BIN_ID']
     return df[['BIN_ID', 'CONTIG_ID']]
 

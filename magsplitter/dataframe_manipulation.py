@@ -56,16 +56,19 @@ def combine_rxn_contig_map(df_rxn: pd.DataFrame, df_contig_map: pd.DataFrame) ->
     return df_rxn.merge(df_contig_map, on='ORF_ID', how='left')
 
 
-def combine_rxn_mag_map(df_rxn: pd.DataFrame, df_mag_map: pd.DataFrame) -> pd.DataFrame:
+def combine_rxn_mag_map(df_rxn: pd.DataFrame, df_mag_map: pd.DataFrame,
+                        df_c2c_map: pd.DataFrame) -> pd.DataFrame:
     """
     Combine the rxn dataframe with the contig MAG map dataframe
     Replace non-binned ORFs with BIN ID of 'non_binned_metagenome'
     :param df_rxn: rxn dataframe
     :param df_mag_map: contig map dataframe
+    :param df_c2c_map: contig to contig map dataframe
     :return: combined rxn and contig map dataframe
     """
 
-    df = df_rxn.merge(df_mag_map, on='CONTIG_ID', how='left')
+    df = df_rxn.merge(df_c2c_map, on='CONTIG_ID', how='left')
+    df = df.merge(df_mag_map, left_on='CONTIG_ORIG_ID', right_on='CONTIG_ID', how='left')
     df['BIN_ID'] = df["BIN_ID"].fillna(value='non_binned_metagenome')
     return df
 
