@@ -1,10 +1,10 @@
 # MAGSplitter
-Script to split MAG files into individual MAG files.
+Script downstream of a community MetaPathways run, to split results by metagenomic bin.  Used for metagenomic bin-specific pathway inference from Pathway Tools.
 
 ### Background Information
 ***
-Currently (August 2022), metapathways outputs are outputted in the form of ePGDBs readable for pathway tools
-. In other words, the outputs of metapathways signify entire metagenomes, rather than individual MAGs. If the end user were to 
+Currently,the Metapathways pipeline outputs are created in the form of ePGDBs readable for pathway tools.
+In other words, the outputs of metapathways signify entire metagenomes, rather than individual MAGs. If the end user were to 
 want to look at metabolic pathway information for a single MAG, they would need to redo the metapathways pipeline
 for each single MAG. This is inefficient in terms of time and resources. Therefore, this tool alleviates this 
 inefficiency by taking the outputs from the WGS pipeline and the metapathways pipeline, and splitting the metabolic
@@ -76,7 +76,7 @@ Then run with a command line entry point to main, with the same argument options
 example usage:
 magsplitter ./magsplitter/main.py -pf example/0.pf -orf example/orf_map.txt -contig example/GAPP-5498e568-6918-4000-b27e-dbeff35eeee7.ORF_annotation_table.txt -mag example/contig_info.tsv
 ```
-### Example usage
+### Mock community run
 We can also call the program to run on a mock metagenome dataset by not supplying arguments to the program
 This can be called with either
 ```commandline
