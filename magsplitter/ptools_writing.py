@@ -109,7 +109,7 @@ def ptools_folder_creator(target_folder, sample_name: str, rxn_processed: dict[p
     :return: None
     """
     # Create the results folder
-    results_path = os.path.abspath(os.path.join(target_folder, "./results"))
+    results_path = os.path.abspath(os.path.join(target_folder, "results"))
     if os.path.exists(results_path) and os.path.isdir(results_path):
         logging.info(f"{os.path.abspath(results_path)} exists, removing...")
         rmtree(results_path)

@@ -66,6 +66,11 @@ def get_args() -> argparse.Namespace:
         '-i', '--contig_contig_map_file',
         help='metapathways contig to contig mapping file location '
              '(typically preprocessed/<samplename>.mapping.txt')
+    parser.add_argument(
+        '-o', '--outdir',
+        help='output directory to save all outputs',
+        default=DIR_PATH,
+        required=False)
     args = parser.parse_args()
     if len(sys.argv) == 1:
         logging.info("No arguments provided. Executing with example dataset")
@@ -93,7 +98,7 @@ def main():
                                          contig_contig_map
                                          )
     df_pf_split = split_full_rxn_df_by_mag(df_pf_with_mag)
-    ptools_folder_creator(DIR_PATH, sample_name, df_pf_split)
+    ptools_folder_creator(args.outdir, sample_name, df_pf_split)
     logging.info("ptools folder creation done")
 
 
