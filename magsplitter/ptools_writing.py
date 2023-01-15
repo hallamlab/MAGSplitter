@@ -29,8 +29,8 @@ def pf_file_creator(pf: pd.DataFrame, file_path: str) -> None:
     f = open(f"{file_path}/0.pf", "a")
     # Iterate through every ORF in the rxn dataframe
     for row in pf.itertuples():
-        if (('_trna' not in row.ORF_ID.lower()) & 
-            ('_rrna' not in row.ORF_ID.lower())): # skip tRNAs and rRNAs for now
+        if (('trna' not in row.PRODUCT_TYPE.lower()) & 
+            ('rrna' not in row.PRODUCT_TYPE.lower())): # skip tRNAs and rRNAs for now
             f.write(row.ORF_ID + "\n")  # Write the ORF ID to the pf file
             f.write(row.NAME + "\n")  # Write the ORF name to the pf file
             f.write(row.STARTBASE + "\n")  # Write the ORF start base to the pf file

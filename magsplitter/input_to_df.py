@@ -92,7 +92,10 @@ def convert_contig_mag_map_to_df(contig_mag_map: str) -> pd.DataFrame:
     :return: contig mag map as a dataframe
     """
 
-    df = pd.read_csv(contig_mag_map, sep='\t', header=None)
+    try:
+        df = pd.read_csv(contig_mag_map, sep='\t', header=None)
+    except: # If map is empty or wrong format create empty DF, should be improved
+        df = pd.DataFrame(columns=['CONTIG_ID', 'BIN_ID'])
     df.columns = ['CONTIG_ID', 'BIN_ID']
     return df[['BIN_ID', 'CONTIG_ID']]
 
