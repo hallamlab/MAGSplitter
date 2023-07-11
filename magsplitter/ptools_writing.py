@@ -117,10 +117,10 @@ def ptools_folder_creator(target_folder, sample_name: str, rxn_processed: dict[p
     # Iterate through every single mag df in the dict of mag rxn dataframes
 
     for mag_df in rxn_processed:
-	# Replace, if name contains '.' character
-	mag_df = mag_df.replace('.', '_')
-        # Create the folder for the current mag df
-        mag_path = os.path.join(results_path, mag_df)
+        # Replace, if name contains '.' character
+        mag_dir = mag_df.replace('.', '_')
+        # Create the folder for the current mag dir
+        mag_path = os.path.join(results_path, mag_dir)
         os.mkdir(mag_path)
         # Create the pf file for the current mag df
         pf_file_creator(rxn_processed[mag_df], mag_path)
