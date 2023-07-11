@@ -34,6 +34,9 @@ Following, the reactions are split into individual MAGs, and new 0.pf files are 
 * <sample_name>.ORF_annotation_tabel.txt: map of ORFS and contigs for an environment metagenome, outputted by metapathways 
 (found in /results/annotation_table/)
 
+* <sample_name>.mapping.txt: map of original input contigs IDs to internal contig IDs for an environment metagenome, outputted by metapathways 
+(found in /preprocessed/)
+
 * orf_map.txt: map of duplicated ORFS within a metagenome, with the first ORF being the intact ORF, 
 and the rest being the duplicates
 (found in /results/annotation_table/)
@@ -50,19 +53,27 @@ A "results" folder will be created in the current working directory
 ```
 options:
   -h, --help            show this help message and exit
-  -pf PF_FILE, --pf_file PF_FILE
-                        metapathways ePGDB output file location (typically ptools/0.pf)
-  -orf ORF_MAPPING, --orf_mapping ORF_MAPPING
-                        metapathways duplicate ORF mapping file location (typically results/annotation_table/orf_map.txt)
-  -contig ORF_CONTIG_MAP_FILE, --orf_contig_map_file ORF_CONTIG_MAP_FILE
-                        metapathways orf to contig mapping file location (typically results/annotation_table/<samplename>.ORF_annotation_table.txt)
-  -mag CONTIG_MAG_MAP, --contig_mag_map CONTIG_MAG_MAP
-                        wgs pipeline contig contig to mag mapping file location (typically binning/results/greedy/config_info.tsv
+  -p PF_FILE, --pf_file PF_FILE
+                        metapathways ePGDB output file location (typically
+                        ptools/0.pf)
+  -r ORF_MAPPING, --orf_mapping ORF_MAPPING
+                        metapathways duplicate ORF mapping file location
+                        (typically ptools/orf_map.txt)
+  -c ORF_CONTIG_MAP_FILE, --orf_contig_map_file ORF_CONTIG_MAP_FILE
+                        metapathways orf to contig mapping file location
+                        (typically results/annotation_table/<samplename>.ORF_anno
+                        tation_table.txt)
+  -m CONTIG_MAG_MAP, --contig_mag_map CONTIG_MAG_MAP
+                        wgs pipeline contig contig to mag mapping file location
+                        (typically binning/results/greedy/config_info.tsv
+  -i CONTIG_CONTIG_MAP_FILE, --contig_contig_map_file CONTIG_CONTIG_MAP_FILE
+                        metapathways contig to contig mapping file location
+                        (typically preprocessed/<samplename>.mapping.txt
 ```
 
 ```
 example usage:
-python ./magsplitter/main.py -pf example/0.pf -orf example/orf_map.txt -contig example/GAPP-5498e568-6918-4000-b27e-dbeff35eeee7.ORF_annotation_table.txt -mag example/contig_info.tsv
+python ./magsplitter/main.py -p example/0.pf -r example/orf_map.txt -c example/GAPP-5498e568-6918-4000-b27e-dbeff35eeee7.ORF_annotation_table.txt -m example/contig_info.tsv  -i example/GAPP-5498e568-6918-4000-b27e-dbeff35eeee7.mapping.txt
 ```
 
 #### **Option 2**:
@@ -74,7 +85,7 @@ Then run with a command line entry point to main, with the same argument options
 
 ```
 example usage:
-magsplitter ./magsplitter/main.py -pf example/0.pf -orf example/orf_map.txt -contig example/GAPP-5498e568-6918-4000-b27e-dbeff35eeee7.ORF_annotation_table.txt -mag example/contig_info.tsv
+magsplitter ./magsplitter/main.py -pf example/0.pf -orf example/orf_map.txt -contig example/GAPP-5498e568-6918-4000-b27e-dbeff35eeee7.ORF_annotation_table.txt -mag example/contig_info.tsv  -i example/GAPP-5498e568-6918-4000-b27e-dbeff35eeee7.mapping.txt
 ```
 ### Mock community run
 We can also call the program to run on a mock metagenome dataset by not supplying arguments to the program

@@ -29,19 +29,21 @@ def pf_file_creator(pf: pd.DataFrame, file_path: str) -> None:
     f = open(f"{file_path}/0.pf", "a")
     # Iterate through every ORF in the rxn dataframe
     for row in pf.itertuples():
-        f.write(row.ORF_ID + "\n")  # Write the ORF ID to the pf file
-        f.write(row.NAME + "\n")  # Write the ORF name to the pf file
-        f.write(row.STARTBASE + "\n")  # Write the ORF start base to the pf file
-        f.write(row.ENDBASE + "\n")  # Write the ORF end base to the pf file
-        f.write(row.FUNCTION + "\n")  # Write the ORF function to the pf file
-        # If the ORF has a metacyc accession, write it to the pf file
-        for metacyc in row.metacyc:
-            f.write(metacyc + "\n")
-        # If the ORF has an EC number, write it to the pf file
-        for ec in row.ec:
-            f.write(ec + "\n")
-        f.write(row.PRODUCT_TYPE + "\n")  # Write the ORF product type to the pf file
-        f.write("//\n")  # Signify the end of the ORF to the pf file
+        if (('trna' not in row.PRODUCT_TYPE.lower()) & 
+            ('rrna' not in row.PRODUCT_TYPE.lower())): # skip tRNAs and rRNAs for now
+            f.write(row.ORF_ID + "\n")  # Write the ORF ID to the pf file
+            f.write(row.NAME + "\n")  # Write the ORF name to the pf file
+            f.write(row.STARTBASE + "\n")  # Write the ORF start base to the pf file
+            f.write(row.ENDBASE + "\n")  # Write the ORF end base to the pf file
+            f.write(row.FUNCTION + "\n")  # Write the ORF function to the pf file
+            # If the ORF has a metacyc accession, write it to the pf file
+            for metacyc in row.metacyc:
+                f.write(metacyc + "\n")
+            # If the ORF has an EC number, write it to the pf file
+            for ec in row.ec:
+                f.write(ec + "\n")
+            f.write(row.PRODUCT_TYPE + "\n")  # Write the ORF product type to the pf file
+            f.write("//\n")  # Signify the end of the ORF to the pf file
     f.close()
     return None
 
@@ -107,7 +109,7 @@ def ptools_folder_creator(target_folder, sample_name: str, rxn_processed: dict[p
     :return: None
     """
     # Create the results folder
-    results_path = os.path.abspath(os.path.join(target_folder, "./results"))
+    results_path = os.path.abspath(os.path.join(target_folder, "results"))
     if os.path.exists(results_path) and os.path.isdir(results_path):
         logging.info(f"{os.path.abspath(results_path)} exists, removing...")
         rmtree(results_path)
@@ -115,6 +117,8 @@ def ptools_folder_creator(target_folder, sample_name: str, rxn_processed: dict[p
     # Iterate through every single mag df in the dict of mag rxn dataframes
 
     for mag_df in rxn_processed:
+	# Replace, if name contains '.' character
+	mag_df = mag_df.replace('.', '_')
         # Create the folder for the current mag df
         mag_path = os.path.join(results_path, mag_df)
         os.mkdir(mag_path)

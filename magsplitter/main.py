@@ -48,19 +48,29 @@ contig_mag_map_file = os.path.abspath(os.path.join(FILE_PATH, "./example/contig_
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Convert metapathways output to ePGDB readable format')
     parser.add_argument(
-        '-pf', '--pf_file',
+        '-p', '--pf_file',
         help='metapathways ePGDB output file location (typically ptools/0.pf)')
     parser.add_argument(
-        '-orf', '--orf_mapping',
-        help='metapathways duplicate ORF mapping file location (typically results/annotation_table/orf_map.txt)')
+        '-r', '--orf_mapping',
+        help='metapathways duplicate ORF mapping file location '
+             '(typically ptools/orf_map.txt)')
     parser.add_argument(
-        '-contig', '--orf_contig_map_file',
+        '-c', '--orf_contig_map_file',
         help='metapathways orf to contig mapping file location '
              '(typically results/annotation_table/<samplename>.ORF_annotation_table.txt)')
     parser.add_argument(
-        '-mag', '--contig_mag_map',
+        '-m', '--contig_mag_map',
         help='wgs pipeline contig contig to mag mapping file location '
              '(typically binning/results/greedy/config_info.tsv')
+    parser.add_argument(
+        '-i', '--contig_contig_map_file',
+        help='metapathways contig to contig mapping file location '
+             '(typically preprocessed/<samplename>.mapping.txt')
+    parser.add_argument(
+        '-o', '--outdir',
+        help='output directory to save all outputs',
+        default=DIR_PATH,
+        required=False)
     args = parser.parse_args()
     if len(sys.argv) == 1:
         logging.info("No arguments provided. Executing with example dataset")
@@ -77,15 +87,18 @@ def main():
     df_pf = convert_pl_input_to_rxn_df(args.pf_file)
     df_duplicate_orf_map = convert_duplicate_orf_map_to_list(args.orf_mapping)
     orf_contig_map = convert_orf_contig_map_to_df(args.orf_contig_map_file)
+    contig_contig_map = convert_contig_contig_map_to_df(args.contig_contig_map_file)
     sample_name = sample_name_grabber(orf_contig_map)
     contig_mag_map = convert_contig_mag_map_to_df(args.contig_mag_map)
     logging.info("file imports done")
     df_pf = undo_orf_removal_test(df_pf, df_duplicate_orf_map)
     logging.info("ORF de-remover done")
     df_pf_with_contig = combine_rxn_contig_map(df_pf, orf_contig_map)
-    df_pf_with_mag = combine_rxn_mag_map(df_pf_with_contig, contig_mag_map)
+    df_pf_with_mag = combine_rxn_mag_map(df_pf_with_contig, contig_mag_map,
+                                         contig_contig_map
+                                         )
     df_pf_split = split_full_rxn_df_by_mag(df_pf_with_mag)
-    ptools_folder_creator(DIR_PATH, sample_name, df_pf_split)
+    ptools_folder_creator(args.outdir, sample_name, df_pf_split)
     logging.info("ptools folder creation done")
 
 
