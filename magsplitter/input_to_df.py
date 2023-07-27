@@ -66,7 +66,7 @@ def convert_orf_contig_map_to_df(orf_map: str) -> pd.DataFrame:
 
     df = pd.read_csv(orf_map, sep='\t')
     df = df.rename(columns={'# ORF_ID': 'ORF_ID'})
-    df["ORF_ID"] = "ID\tO_" + df["ORF_ID"]
+    df["ORF_ID"] = "ID\t" + df["ORF_ID"]
     return df[["ORF_ID", "CONTIG_ID"]]  # Return only the two columns we need
 
 
