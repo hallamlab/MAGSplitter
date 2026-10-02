@@ -1,6 +1,5 @@
 import pandas as pd
 from typing import List
-import time
 
 
 # These functions are to combine each of the mapping and ePGDB dataframes into a list of dataframes split by MAGs.
@@ -11,38 +10,28 @@ import time
 def undo_orf_removal_test(df_rxn: pd.DataFrame, duplicate_orf_map: List[List[str]]) -> pd.DataFrame:
     """
     Add in extra rows that were deleted from metapathways output, done previously to optimize usage of pathway tools
-    NOT RUNTIME OPTIMIZED
+    Coordinates are restored separately from the authoritative feature table.
     :param df_rxn: rxn dataframe
     :param duplicate_orf_map: duplicate orf list of lists
     :return: rxn dataframe with extra rows
     """
     # Open the orf map file, and only choose the maps that have at least two ORFs in each row
     # The ones with only one ORF indicate that there are no duplicates of that rxn
-    start = time.perf_counter()
-    # We use rxn_acc to accumulate all the new rows that we are going to add to the df_rxn dataframe
-    rxn_acc = []
-    for rxn in duplicate_orf_map:
-        intact_orf = rxn[0]
-        found_rxn_row = None  # This will change when the row in df_rxn is found for first time in set of matching rxns
-        if intact_orf in list(df_rxn['ORF_ID']): # only use ORF clusters that exist in the 0.pf file
-            for deleted_orf in range(1, len(rxn)):
-                # Create a new dataframe with only the intact ORF, change the ID to a deleted ORF, and accumulate them
-                if found_rxn_row is None:
-                    found_rxn_row = df_rxn[df_rxn['ORF_ID'] == intact_orf]
-                    # Case where no matching ORF is found
-                    if found_rxn_row.empty:
-                        raise Exception("No matching ORF found for ORF_ID: " + intact_orf)
-                        break
-                rxn_acc.append(
-                    found_rxn_row.
-                        assign(ORF_ID=rxn[deleted_orf],
-                               NAME="NAME" + rxn[deleted_orf][2:]))
-    # Combine rxn dataframe with rxn accumulator dataframe
-    rxn_acc = pd.concat(rxn_acc, ignore_index=True)
-    df_rxn = pd.concat([df_rxn, rxn_acc], ignore_index=True)
-    end = time.perf_counter()
-    print("Time to undo orf removal: " + str(end - start))
-    return df_rxn
+    if df_rxn['ORF_ID'].duplicated().any():
+        raise ValueError("Duplicate ORF IDs in Pathway Tools input")
+    representatives = df_rxn.set_index('ORF_ID', drop=False)
+    rows = [df_rxn]
+    for cluster in duplicate_orf_map:
+        if cluster[0] not in representatives.index:
+            continue
+        template = representatives.loc[[cluster[0]]]
+        for member in cluster[1:]:
+            rows.append(template.assign(ORF_ID=member, NAME="NAME" + member[2:]))
+    expanded = pd.concat(rows, ignore_index=True)
+    if expanded['ORF_ID'].duplicated().any():
+        raise ValueError("Duplicate ORF IDs after expansion; check the duplicate ORF map")
+    return expanded
+
 
 # Combine the rxn dataframe with the orf:contig and contig:mag dataframes
 def combine_rxn_contig_map(df_rxn: pd.DataFrame, df_contig_map: pd.DataFrame) -> pd.DataFrame:
@@ -53,7 +42,11 @@ def combine_rxn_contig_map(df_rxn: pd.DataFrame, df_contig_map: pd.DataFrame) ->
     :param df_contig_map: contig map dataframe
     :return: combined rxn and contig map dataframe
     """
-    return df_rxn.merge(df_contig_map, on='ORF_ID', how='left')
+    merged = df_rxn.merge(df_contig_map, on='ORF_ID', how='left', validate='one_to_one')
+    if merged['CONTIG_ID'].isna().any():
+        missing = merged.loc[merged['CONTIG_ID'].isna(), 'ORF_ID'].tolist()
+        raise ValueError("Missing ORF-to-contig assignments: " + ", ".join(missing[:10]))
+    return merged
 
 
 def combine_rxn_mag_map(df_rxn: pd.DataFrame, df_mag_map: pd.DataFrame,

@@ -4,6 +4,7 @@ from magsplitter.ptools_writing import *
 import argparse
 import logging
 import sys
+from magsplitter.coordinates import restore_coordinates
 '''
 #####
 Inputs
@@ -59,6 +60,10 @@ def get_args() -> argparse.Namespace:
         help='metapathways orf to contig mapping file location '
              '(typically results/annotation_table/<samplename>.ORF_annotation_table.txt)')
     parser.add_argument(
+        '--feature_table',
+        help='MP .ptinput.tsv with authoritative gene coordinates and strand; '
+             'defaults to the sibling of the ORF annotation table')
+    parser.add_argument(
         '-m', '--contig_mag_map',
         help='wgs pipeline contig contig to mag mapping file location '
              '(typically binning/results/greedy/config_info.tsv')
@@ -93,7 +98,12 @@ def main():
     logging.info("file imports done")
     df_pf = undo_orf_removal_test(df_pf, df_duplicate_orf_map)
     logging.info("ORF de-remover done")
+    # The writer supports protein features only. Filter RNAs before validating
+    # ORF membership: MP's protein annotation table intentionally excludes them.
+    df_pf = df_pf.loc[~df_pf['PRODUCT_TYPE'].str.contains('trna|rrna', case=False)].copy()
     df_pf_with_contig = combine_rxn_contig_map(df_pf, orf_contig_map)
+    df_pf_with_contig = restore_coordinates(
+        df_pf_with_contig, args.orf_contig_map_file, args.feature_table)
     df_pf_with_mag = combine_rxn_mag_map(df_pf_with_contig, contig_mag_map,
                                          contig_contig_map
                                          )

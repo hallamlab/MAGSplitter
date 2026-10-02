@@ -98,3 +98,25 @@ or if the package is installed:
 magsplitter 
 ```
 
+
+### Gene coordinates for expanded MAG inputs
+
+MAGSplitter restores each gene's own contig-relative coordinates and strand
+from MetaPathways' `results/annotation_table/<sample>.ptinput.tsv`. It discovers
+this file beside the `<sample>.ORF_annotation_table.txt` supplied with `-c`.
+For custom locations, add `--feature_table /path/to/sample.ptinput.tsv`.
+The table must contain `orf_id`, `seqname`, `start`, `end`, `strand`, and
+`contig_length`; coordinates are one-based, inclusive, with `start <= end`.
+Reverse-strand PF records are written with `STARTBASE > ENDBASE`.
+
+As before, MAG PF outputs contain protein features; tRNA/rRNA records are excluded.
+Only functional annotations are shared when expanding compacted ORFs. Gene
+coordinates must never be copied from a representative ORF. Missing, duplicate,
+invalid, or mismatched feature metadata stops the split before replacing the
+results directory. Older outputs without this table must first regenerate it
+with MetaPathways; the bundled historical example lacks these required inputs.
+
+The compact MAG `0.pf` files remain annotation inputs. MetaPathways' PGDB staging
+step pairs these records with their actual contig FASTA sequences and writes
+sequence-backed `genetic-elements.dat` files before invoking Pathway Tools.
+MAGSplitter does not itself supply contig sequences.
